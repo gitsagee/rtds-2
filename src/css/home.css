@@ -1,0 +1,436 @@
+/* Base layout styles */
+.container {
+    background-color: #f9fafb;
+    padding: 2rem 0;
+    min-height: 100vh;
+  }
+  
+  .wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  
+  .header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  
+  .title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #111827;
+  }
+  
+  .subtitle {
+    margin-top: 0.75rem;
+    font-size: 1.25rem;
+    color: #6b7280;
+  }
+  
+  .card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Form styles */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    .form-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .recommendations-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .form-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .recommendations-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  .form-group {
+    margin-bottom: 0.5rem;
+  }
+  
+  .label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+  }
+  
+  .select {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    border: 1px solid #d1d5db;
+    font-size: 0.875rem;
+    color: #1f2937;
+    appearance: none;
+    background-color: white;
+    line-height: 1.25;
+    padding-right: 2rem;
+    background-image: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 20 20%27%3e%3cpath stroke=%27%236b7280%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%271.5%27 d=%27M6 8l4 4 4-4%27/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+  }
+  
+  .radio-group {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .radio-label {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .radio {
+    margin-right: 0.5rem;
+  }
+  
+  .input-group {
+    position: relative;
+  }
+  
+  .icon-input {
+    padding-left: 2.5rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    border: 1px solid #d1d5db;
+    font-size: 0.875rem;
+  }
+  
+  .input-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+  
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    background-color: #2563eb;
+    color: white;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+  }
+  
+  .button:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .button.disabled {
+    background-color: #93c5fd;
+    cursor: not-allowed;
+  }
+  
+  /* Loading state */
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 3rem 0;
+    gap: 1rem;
+  }
+  
+  .loading-icon {
+    color: #2563eb;
+  }
+  
+  .loading-text {
+    font-size: 1.125rem;
+    color: #4b5563;
+  }
+  
+  /* Recommendations grid */
+  .recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  
+  .gpu-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    border: 1px solid #f3f4f6;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s ease-in-out;
+  }
+  
+  .gpu-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  
+  .gpu-header {
+    background: linear-gradient(to right, #2563eb, #60a5fa);
+    padding: 0.75rem 1rem;
+    color: white;
+  }
+  
+  .gpu-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .gpu-content {
+    padding: 1.25rem;
+  }
+  
+  .spec-item {
+    display: flex;
+    align-items: center;
+    color: #4b5563;
+    margin-bottom: 1rem;
+  }
+  
+  .spec-icon {
+    margin-right: 0.5rem;
+  }
+  
+  .spec-text {
+    font-size: 0.875rem;
+  }
+  
+  /* Pricing styles */
+  .pricing-section {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .pricing-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .pricing-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+  
+  .pricing-value {
+    font-weight: 500;
+  }
+  
+  /* Performance section */
+  .performance-section {
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid #f3f4f6;
+  }
+  
+  .progress-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .progress-bar {
+    flex: 1;
+    height: 0.5rem;
+    background-color: #e5e7eb;
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background-color: #2563eb;
+    border-radius: 9999px;
+  }
+  
+  .progress-value {
+    margin-left: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+  }
+  
+  .explanation {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+  }
+  
+  .gpu-footer {
+    background-color: #f9fafb;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .outline-button {
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border: 1px solid #2563eb;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #2563eb;
+    background-color: white;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+  }
+  
+  .outline-button:hover {
+    background-color: #eff6ff;
+  }
+  
+  .primary-button {
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: white;
+    background-color: #2563eb;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+  }
+  
+  .primary-button:hover {
+    background-color: #1d4ed8;
+  }
+  
+  /* Toast notification */
+  .toast {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    width: 100%;
+    max-width: 20rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #2563eb;
+    z-index: 50;
+  }
+  
+  .toast-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    justify-content: center;
+    align-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+  }
+  
+  .success-icon {
+    background-color: #d1fae5;
+    color: #059669;
+  }
+  
+  .error-icon {
+    background-color: #fee2e2;
+    color: #ef4444;
+  }
+  
+  .toast-message {
+    margin-left: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: normal;
+    color: #1f2937;
+  }
+  
+  .close-button {
+    margin-left: auto;
+    margin-right: -0.25rem;
+    margin-top: -0.25rem;
+    margin-bottom: -0.25rem;
+    background-color: white;
+    color: #9ca3af;
+    border-radius: 0.5rem;
+    padding: 0.25rem;
+    display: inline-flex;
+    height: 2rem;
+    width: 2rem;
+    cursor: pointer;
+  }
+  
+  .close-button:hover {
+    color: #1f2937;
+  }
+  
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  
+  /* Animation */
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .spin {
+    animation: spin 1s linear infinite;
+  }
