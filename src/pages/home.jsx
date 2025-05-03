@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { AlertCircle, CheckCircle, ChevronDown, Cpu, Database, DollarSign, Loader2 } from 'lucide-react';
-
-import "../css/home.css";
+import '../css/home.css'
 
 export default function GPURecommender() {
   const [formData, setFormData] = useState({
@@ -20,75 +19,69 @@ export default function GPURecommender() {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [hoveredButton, setHoveredButton] = useState(null);
 
-  // Placeholder data for demonstration
-  const dummyRecommendations = [
-    {
-      id: 1,
-      name: 'NVIDIA A100',
-      vcpus: 96,
-      ram: '640 GB',
-      hourlyPrice: 3.2,
-      monthlyPrice: 2304,
-      spotPrice: 1.1,
-      explanation: 'Best for training large transformer models with high memory requirements.',
-      performanceScore: 95
-    },
-    {
-      id: 2,
-      name: 'NVIDIA T4',
-      vcpus: 32,
-      ram: '128 GB',
-      hourlyPrice: 0.8,
-      monthlyPrice: 576,
-      spotPrice: 0.3,
-      explanation: 'Cost-effective for medium-scale CNN training workloads.',
-      performanceScore: 78
-    },
-    {
-      id: 3,
-      name: 'NVIDIA V100',
-      vcpus: 64,
-      ram: '256 GB',
-      hourlyPrice: 2.1,
-      monthlyPrice: 1512,
-      spotPrice: 0.7,
-      explanation: 'Good balance between performance and cost for inference workloads.',
-      performanceScore: 88
-    },
-    {
-      id: 4,
-      name: 'NVIDIA K80',
-      vcpus: 16,
-      ram: '64 GB',
-      hourlyPrice: 0,
-      monthlyPrice: 0,
-      spotPrice: 0,
-      explanation: 'Legacy GPU suitable for smaller workloads and testing.',
-      performanceScore: 45
-    }
-  ];
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setIsLoading(true);
     setError(null);
 
-    // Simulate API call
-    setTimeout(() => {
-      // 10% chance of error for demo purposes
-      if (Math.random() < 0.1) {
-        setError("Failed to fetch recommendations. Please try again.");
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 5000);
-      } else {
-        setRecommendations(dummyRecommendations);
+    try {
+      // Build a comprehensive prompt based on the form data
+      const promptText = `
+        I need a GPU instance with these requirements:
+        - Model Type: ${formData.modelType || 'Any'}
+        - Workload Type: ${formData.workloadType}
+        - Dataset Size: ${formData.datasetSize}
+        - Monthly Budget: $${formData.budget}
+        - Region: ${formData.region || 'Any'}
+        - Framework: ${formData.framework || 'Any'}
+        
+        Please recommend GPU configurations that would work well for this use case.
+      `;
+
+      // Call the FastAPI backend
+      const response = await fetch('/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt: promptText }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch recommendations');
       }
+
+      const data = await response.json();
+      
+      // Transform API response to match our frontend structure
+      const processedRecommendations = data.results.map((result, index) => {
+        const instance = result.match;
+        return {
+          id: index + 1,
+          name: instance.name || `GPU Instance ${index + 1}`,
+          vcpus: instance.vcpus || 0,
+          ram: `${instance.ram || 0} GB`,
+          hourlyPrice: instance.price_per_hour || 0,
+          monthlyPrice: instance.price_per_month || 0,
+          spotPrice: instance.price_per_spot || 0,
+          explanation: instance.description || 'No description available.',
+          performanceScore: Math.round(100 - (result.distance * 10)) // Convert distance to a score
+        };
+      });
+
+      setRecommendations(processedRecommendations);
+    } catch (err) {
+      console.error('Error fetching recommendations:', err);
+      setError("Failed to fetch recommendations. Please try again.");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 5000);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleRequestPricing = (gpuId) => {
