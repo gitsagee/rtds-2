@@ -82,6 +82,7 @@ def search_resources(query: InputQuery):
     
     gpt_output = gpt_process(query.prompt)
     
+    # Original values
     vector = np.array([
         gpt_output['vcpus'],
         gpt_output['ram'],
@@ -91,11 +92,31 @@ def search_resources(query: InputQuery):
         gpt_output['is_gpu'],
         gpt_output['is_spot'],
         gpt_output['is_public']
-    ], dtype='float32').reshape(1, -1)
+    ], dtype='float32')
     
-    k = 20
-    distances, indices = index.search(vector, k)
+    # Define weights — emphasize CPU and RAM
+    weights = np.array([
+        4.0,  # vcpus
+        4.0,  # ram
+        1.0,  # price_per_hour
+        1.0,  # price_per_month
+        1.0,  # price_per_spot
+        0.5,  # is_gpu
+        0.5,  # is_spot
+        0.5   # is_public
+    ], dtype='float32')
 
+    # Apply weights
+    weighted_vector = vector * weights
+
+    # Reshape for FAISS
+    weighted_vector = weighted_vector.reshape(1, -1)
+
+    # Search
+    k = 20
+    distances, indices = index.search(weighted_vector, k)
+
+    # Process results
     results = []
     seen = set()
 
@@ -103,7 +124,6 @@ def search_resources(query: InputQuery):
         idx = indices[0][i]
         if idx < len(metadata_list):
             metadata = metadata_list[idx]
-            # Use a unique key to identify duplicates — customize if needed
             unique_key = json.dumps(metadata, sort_keys=True)
             if unique_key not in seen:
                 seen.add(unique_key)

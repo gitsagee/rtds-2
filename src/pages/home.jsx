@@ -10,6 +10,17 @@ export default function GPURecommender() {
   const [showToast, setShowToast] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
   const [hoveredButton, setHoveredButton] = useState(null);
+  const handleButtonClick = (type, gpuId) => {
+    if (type === 'reserve') {
+      setError(null); // Ensure it's not treated as an error
+    } else if (type === 'request') {
+      setError(null); // Again, reset any existing error
+    }
+  
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 5000);
+  };
+  
 
   // Sample values to show as hints
   const sampleValues = {
@@ -199,8 +210,8 @@ I'm using PyTorch for development.`}
                   <div className="gpu-footer">
                     {gpu.hourlyPrice === 0 ? (
                       <button
-                        onClick={() => handleRequestPricing(gpu.id)}
-                        className="outline-button"
+                      onClick={() => handleButtonClick('request', gpu.id)}
+                      className="outline-button"
                         onMouseEnter={() => setHoveredButton(`request-${gpu.id}`)}
                         onMouseLeave={() => setHoveredButton(null)}
                       >
@@ -211,6 +222,7 @@ I'm using PyTorch for development.`}
                         className="primary-button"
                         onMouseEnter={() => setHoveredButton(`reserve-${gpu.id}`)}
                         onMouseLeave={() => setHoveredButton(null)}
+                        onClick={() => handleButtonClick('reserve', gpu.id)}
                       >
                         Reserve Instance
                       </button>
@@ -252,36 +264,39 @@ I'm using PyTorch for development.`}
 
       {/* Toast notification */}
       {showToast && (
-        <div className="toast">
-          {error ? (
-            <>
-              <div className={`toast-icon error-icon`}>
-                <AlertCircle size={16} />
-              </div>
-              <div className="toast-message">{error}</div>
-            </>
-          ) : (
-            <>
-              <div className={`toast-icon success-icon`}>
-                <CheckCircle size={16} />
-              </div>
-              <div className="toast-message">
-                Pricing request submitted successfully. Our team will contact you shortly.
-              </div>
-            </>
-          )}
-          <button
-            type="button"
-            className="close-button"
-            onClick={() => setShowToast(false)}
-          >
-            <span className="sr-only">Close</span>
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path>
-            </svg>
-          </button>
+  <div className="toast">
+    {error ? (
+      <>
+        <div className={`toast-icon error-icon`}>
+          <AlertCircle size={16} />
         </div>
-      )}
+        <div className="toast-message">{error}</div>
+      </>
+    ) : (
+      <>
+        <div className={`toast-icon success-icon`}>
+          <CheckCircle size={16} />
+        </div>
+        <div className="toast-message">
+          {hoveredButton?.startsWith('reserve')
+            ? 'You will be notified soon.'
+            : 'Pricing request submitted successfully. Our team will contact you shortly.'}
+        </div>
+      </>
+    )}
+    <button
+      type="button"
+      className="close-button"
+      onClick={() => setShowToast(false)}
+    >
+      <span className="sr-only">Close</span>
+      <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path>
+      </svg>
+    </button>
+  </div>
+)}
+
     </div>
   );
 }
