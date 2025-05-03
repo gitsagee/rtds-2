@@ -36,46 +36,37 @@ metadata_list = list(id_to_metadata.values())
 def gpt_process(prompt: str) -> dict:
     system_instruction = (
         "You are a helpful assistant that extracts GPU instance configuration from prompts. "
-        "Return a JSON object with these fields: vcpus, ram, price_per_hour, "
+        "Return a JSON object with these fields: vcpus, ram, price_per_hour, extracted from the prompt and if not found in the prompt then try to give it a value by understanding prompt  and make sure its perfect number that these values have"
         "price_per_month, price_per_spot, is_gpu, is_spot, is_public. Only return the JSON."
     )
     
-    default_values = {
-        "vcpus": 16,
-        "ram": 32,
-        "price_per_hour": 0.85,
-        "price_per_month": 600,
-        "price_per_spot": 0.3,
-        "is_gpu": 1,
-        "is_spot": 0,
-        "is_public": 1
-    }
-
     try:
         model = genai.GenerativeModel("gemini-2.5-pro-exp-03-25")
         response = model.generate_content([
             {"role": "user", "parts": [system_instruction + "\n\n" + prompt]}
         ])
-
+        
         text_response = response.text.strip()
         print(text_response)
-
         # Try to locate JSON block if the model wraps it in explanation
         json_str = text_response
         if "{" in text_response:
             json_str = text_response[text_response.find("{"):text_response.rfind("}") + 1]
-
-        parsed = json.loads(json_str)
-
-        # Ensure all keys are present and not None
-        cleaned = {key: parsed.get(key, default) if parsed.get(key) is not None else default
-                   for key, default in default_values.items()}
-
-        return cleaned
-
+        
+        return json.loads(json_str)
+    
     except Exception as e:
         print("Error:", e)
-        return default_values
+        return {
+            "vcpus": 16,
+            "ram": 32,
+            "price_per_hour": 850,
+            "price_per_month": 6000,
+            "price_per_spot": 0.3,
+            "is_gpu": 1,
+            "is_spot": 0,
+            "is_public": 1
+        }
 
 # Request schema
 class InputQuery(BaseModel):
@@ -102,7 +93,7 @@ def search_resources(query: InputQuery):
         gpt_output['is_public']
     ], dtype='float32').reshape(1, -1)
     
-    k = 5
+    k = 20
     distances, indices = index.search(vector, k)
 
     results = []

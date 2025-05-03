@@ -6,7 +6,7 @@ import json
 import os
 
 # Initialize Faiss index
-dim = 9
+dim = 6
 index = faiss.IndexFlatL2(dim)
 
 # API URLs
@@ -30,11 +30,8 @@ def convert_to_vector(item):
         item['ram'],
         item['price_per_hour'],
         item['price_per_month'],
-        item['price_per_spot'],
         item['is_gpu'],
         item['is_spot'],
-        item['is_public'],
-
     ], dtype="float32")
 
 # Generate unique hash for metadata

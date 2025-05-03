@@ -1,17 +1,9 @@
 import { useState } from 'react';
-import { AlertCircle, CheckCircle, ChevronDown, Cpu, Database, DollarSign, Loader2 } from 'lucide-react';
-import '../css/home.css'
+import { AlertCircle, CheckCircle, Loader2, Cpu, Database, DollarSign } from 'lucide-react';
+import '../css/home.css';
 
 export default function GPURecommender() {
-  const [formData, setFormData] = useState({
-    modelType: '',
-    workloadType: 'training',
-    datasetSize: 'medium',
-    budget: 500,
-    region: '',
-    framework: ''
-  });
-
+  const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [recommendations, setRecommendations] = useState(null);
   const [error, setError] = useState(null);
@@ -19,9 +11,18 @@ export default function GPURecommender() {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [hoveredButton, setHoveredButton] = useState(null);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  // Sample values to show as hints
+  const sampleValues = {
+    modelType: 'transformer',
+    workloadType: 'training',
+    datasetSize: 'medium (10-100GB)',
+    budget: '$500',
+    region: 'US East',
+    framework: 'PyTorch'
+  };
+
+  const handlePromptChange = (e) => {
+    setPrompt(e.target.value);
   };
 
   const handleSubmit = async () => {
@@ -29,26 +30,13 @@ export default function GPURecommender() {
     setError(null);
 
     try {
-      // Build a comprehensive prompt based on the form data
-      const promptText = `
-        I need a GPU instance with these requirements:
-        - Model Type: ${formData.modelType || 'Any'}
-        - Workload Type: ${formData.workloadType}
-        - Dataset Size: ${formData.datasetSize}
-        - Monthly Budget: $${formData.budget}
-        - Region: ${formData.region || 'Any'}
-        - Framework: ${formData.framework || 'Any'}
-        
-        Please recommend GPU configurations that would work well for this use case.
-      `;
-
-      // Call the FastAPI backend
+      // Call the FastAPI backend with the raw prompt
       const response = await fetch('http://localhost:8000/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt: promptText }),
+        body: JSON.stringify({ prompt }),
       });
 
       if (!response.ok) {
@@ -56,11 +44,11 @@ export default function GPURecommender() {
       }
 
       const data = await response.json();
-      console.log(data)
+      
       // Transform API response to match our frontend structure
       const processedRecommendations = data.results.map((result, index) => {
         const instance = result.match;
-        console.log("instance",instance)
+        console.log(instance)
         return {
           id: index + 1,
           name: instance.name || `GPU Instance ${index + 1}`,
@@ -68,9 +56,8 @@ export default function GPURecommender() {
           ram: `${instance.ram || 0} GB`,
           hourlyPrice: instance.price_per_hour || 0,
           monthlyPrice: instance.price_per_month || 0,
-          spotPrice: instance.price_per_spot || 0,
           explanation: instance.gpu_description || 'No description available.',
-          performanceScore: Math.round(100 - (result.distance * 10)) // Convert distance to a score
+          performanceScore: Math.round(100 - (result.distance * 10)) 
         };
       });
 
@@ -92,163 +79,59 @@ export default function GPURecommender() {
 
   return (
     <div className="container">
+      {/* New Header */}
+      <header className="site-header">
+        <div className="logo">
+          <img src="/api/placeholder/40/40" alt="Logo" />
+          <h1>GPU Optimizer</h1>
+        </div>
+        <nav className="nav-links">
+          <a href="#" className="nav-link">Home</a>
+          <a href="#" className="nav-link">Pricing</a>
+          <a href="#" className="nav-link">Contact</a>
+          <a href="#" className="nav-link highlight">Login</a>
+        </nav>
+      </header>
+
       <div className="wrapper">
         <div className="header">
           <h1 className="title">GPU Cost Optimizer & Recommender</h1>
-          <p className="subtitle">Find the perfect GPU for your machine learning workloads</p>
+          <p className="subtitle">Find the perfect GPU for your machine learning workloads using natural language</p>
         </div>
 
         <div className="card">
-          <h2 className="section-title">Workload Configuration</h2>
+          <h2 className="section-title">Describe Your ML Workload</h2>
           
-          <div>
-            <div className="form-grid">
-              <div className="form-group">
-                <label htmlFor="modelType" className="label">
-                  Model Type
-                </label>
-                <div style={{position: 'relative'}}>
-                  <select
-                    id="modelType"
-                    name="modelType"
-                    value={formData.modelType}
-                    onChange={handleInputChange}
-                    className="select"
-                  >
-                    <option value="" disabled>Select model type</option>
-                    <option value="cnn">CNN</option>
-                    <option value="transformer">Transformer</option>
-                    <option value="rnn">RNN/LSTM</option>
-                    <option value="diffusion">Diffusion Model</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-              </div>
+          <div className="prompt-container">
+            <textarea
+              className="prompt-textarea"
+              value={prompt}
+              onChange={handlePromptChange}
+              placeholder={`Describe your GPU needs in natural language. For example:
 
-              <div className="form-group">
-                <label className="label">
-                  Workload Type
-                </label>
-                <div className="radio-group">
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      name="workloadType"
-                      value="training"
-                      checked={formData.workloadType === 'training'}
-                      onChange={handleInputChange}
-                      className="radio"
-                    />
-                    <span>Training</span>
-                  </label>
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      name="workloadType"
-                      value="inference"
-                      checked={formData.workloadType === 'inference'}
-                      onChange={handleInputChange}
-                      className="radio"
-                    />
-                    <span>Inference</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="datasetSize" className="label">
-                  Dataset Size
-                </label>
-                <div style={{position: 'relative'}}>
-                  <select
-                    id="datasetSize"
-                    name="datasetSize"
-                    value={formData.datasetSize}
-                    onChange={handleInputChange}
-                    className="select"
-                  >
-                    <option value="small">Small (&lt; 10GB)</option>
-                    <option value="medium">Medium (10-100GB)</option>
-                    <option value="large">Large (100GB-1TB)</option>
-                    <option value="xlarge">X-Large (&gt; 1TB)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="budget" className="label">
-                  Monthly Budget (USD)
-                </label>
-                <div className="input-group">
-                  <div className="input-icon">
-                    <DollarSign size={16} color="#9ca3af" />
-                  </div>
-                  <input
-                    type="number"
-                    name="budget"
-                    id="budget"
-                    value={formData.budget}
-                    onChange={handleInputChange}
-                    min="0"
-                    step="50"
-                    className="icon-input"
-                    placeholder="500"
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="region" className="label">
-                  Preferred Region
-                </label>
-                <div style={{position: 'relative'}}>
-                  <select
-                    id="region"
-                    name="region"
-                    value={formData.region}
-                    onChange={handleInputChange}
-                    className="select"
-                  >
-                    <option value="" disabled>Select region</option>
-                    <option value="mumbai">Mumbai</option>
-                    <option value="delhi">Delhi</option>
-                    <option value="bangalore">Bangalore</option>
-                    <option value="asia-east">Asia East</option>
-                    <option value="us-east">US East</option>
-                    <option value="us-west">US West</option>
-                    <option value="eu-central">EU Central</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="framework" className="label">
-                  Framework (Optional)
-                </label>
-                <div style={{position: 'relative'}}>
-                  <select
-                    id="framework"
-                    name="framework"
-                    value={formData.framework}
-                    onChange={handleInputChange}
-                    className="select"
-                  >
-                    <option value="">Select framework (optional)</option>
-                    <option value="pytorch">PyTorch</option>
-                    <option value="tensorflow">TensorFlow</option>
-                    <option value="jax">JAX</option>
-                    <option value="mxnet">MXNet</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-              </div>
+I need a GPU for training a transformer model with a medium-sized dataset (around 50GB).
+My monthly budget is $500, and I prefer the US East region.
+I'm using PyTorch for development.`}
+              rows={6}
+            />
+            
+            <div className="hints-container">
+              <h3 className="hints-title">Suggested Parameters to Include:</h3>
+              <ul className="hints-list">
+                <li><strong>Model Type:</strong> {sampleValues.modelType}</li>
+                <li><strong>Workload Type:</strong> {sampleValues.workloadType}</li>
+                <li><strong>Dataset Size:</strong> {sampleValues.datasetSize}</li>
+                <li><strong>Budget:</strong> {sampleValues.budget}</li>
+                <li><strong>Region:</strong> {sampleValues.region}</li>
+                <li><strong>Framework:</strong> {sampleValues.framework}</li>
+              </ul>
             </div>
 
             <div className="button-container">
               <button
                 onClick={handleSubmit}
-                disabled={isLoading}
-                className={`button ${isLoading ? 'disabled' : ''}`}
+                disabled={isLoading || !prompt.trim()}
+                className={`button ${isLoading || !prompt.trim() ? 'disabled' : ''}`}
                 onMouseEnter={() => setHoveredButton('submit')}
                 onMouseLeave={() => setHoveredButton(null)}
               >
@@ -308,24 +191,8 @@ export default function GPURecommender() {
                           <span className="pricing-label">Monthly:</span>
                           <span className="pricing-value">${gpu.monthlyPrice.toFixed(2)}</span>
                         </div>
-                        <div className="pricing-row">
-                          <span className="pricing-label">Spot:</span>
-                          <span className="pricing-value">${gpu.spotPrice.toFixed(2)}</span>
-                        </div>
                       </div>
-                      
-                      <div className="performance-section">
-                        <div className="progress-container">
-                          <div className="progress-bar">
-                            <div 
-                              className="progress-fill"
-                              style={{width: `${gpu.performanceScore}%`}}
-                            ></div>
-                          </div>
-                          <span className="progress-value">{gpu.performanceScore}%</span>
-                        </div>
-                        <p className="explanation">{gpu.explanation}</p>
-                      </div>
+                    
                     </div>
                   </div>
                   
@@ -355,6 +222,33 @@ export default function GPURecommender() {
           </div>
         )}
       </div>
+
+      {/* New Footer */}
+      <footer className="site-footer">
+        <div className="footer-content">
+          <div className="footer-section">
+            <h3>GPU Optimizer</h3>
+            <p>Finding the perfect GPU for your machine learning workloads at the best price.</p>
+          </div>
+          <div className="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+              <li><a href="#">About Us</a></li>
+              <li><a href="#">Pricing</a></li>
+              <li><a href="#">Documentation</a></li>
+              <li><a href="#">Support</a></li>
+            </ul>
+          </div>
+          <div className="footer-section">
+            <h3>Contact</h3>
+            <p>Email: sujalgp2003@gmail.com</p>
+            <p>Phone: 9718836800</p>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <p>&copy; 2025 GPU Optimizer. All rights reserved.</p>
+        </div>
+      </footer>
 
       {/* Toast notification */}
       {showToast && (
