@@ -43,7 +43,7 @@ export default function GPURecommender() {
       `;
 
       // Call the FastAPI backend
-      const response = await fetch('/search', {
+      const response = await fetch('http://localhost:8000/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -56,10 +56,11 @@ export default function GPURecommender() {
       }
 
       const data = await response.json();
-      
+      console.log(data)
       // Transform API response to match our frontend structure
       const processedRecommendations = data.results.map((result, index) => {
         const instance = result.match;
+        console.log("instance",instance)
         return {
           id: index + 1,
           name: instance.name || `GPU Instance ${index + 1}`,
@@ -68,7 +69,7 @@ export default function GPURecommender() {
           hourlyPrice: instance.price_per_hour || 0,
           monthlyPrice: instance.price_per_month || 0,
           spotPrice: instance.price_per_spot || 0,
-          explanation: instance.description || 'No description available.',
+          explanation: instance.gpu_description || 'No description available.',
           performanceScore: Math.round(100 - (result.distance * 10)) // Convert distance to a score
         };
       });

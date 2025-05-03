@@ -40,33 +40,42 @@ def gpt_process(prompt: str) -> dict:
         "price_per_month, price_per_spot, is_gpu, is_spot, is_public. Only return the JSON."
     )
     
+    default_values = {
+        "vcpus": 16,
+        "ram": 32,
+        "price_per_hour": 0.85,
+        "price_per_month": 600,
+        "price_per_spot": 0.3,
+        "is_gpu": 1,
+        "is_spot": 0,
+        "is_public": 1
+    }
+
     try:
         model = genai.GenerativeModel("gemini-2.5-pro-exp-03-25")
         response = model.generate_content([
             {"role": "user", "parts": [system_instruction + "\n\n" + prompt]}
         ])
-        
+
         text_response = response.text.strip()
         print(text_response)
+
         # Try to locate JSON block if the model wraps it in explanation
         json_str = text_response
         if "{" in text_response:
             json_str = text_response[text_response.find("{"):text_response.rfind("}") + 1]
-        
-        return json.loads(json_str)
-    
+
+        parsed = json.loads(json_str)
+
+        # Ensure all keys are present and not None
+        cleaned = {key: parsed.get(key, default) if parsed.get(key) is not None else default
+                   for key, default in default_values.items()}
+
+        return cleaned
+
     except Exception as e:
         print("Error:", e)
-        return {
-            "vcpus": 16,
-            "ram": 32,
-            "price_per_hour": 0.85,
-            "price_per_month": 600,
-            "price_per_spot": 0.3,
-            "is_gpu": 1,
-            "is_spot": 0,
-            "is_public": 1
-        }
+        return default_values
 
 # Request schema
 class InputQuery(BaseModel):
@@ -95,16 +104,23 @@ def search_resources(query: InputQuery):
     
     k = 5
     distances, indices = index.search(vector, k)
-    
+
     results = []
-    for i in range(k):
+    seen = set()
+
+    for i in range(len(indices[0])):
         idx = indices[0][i]
         if idx < len(metadata_list):
-            results.append({
-                "distance": float(distances[0][i]),
-                "match": metadata_list[idx]
-            })
-    
-    return {"results": results}
+            metadata = metadata_list[idx]
+            # Use a unique key to identify duplicates — customize if needed
+            unique_key = json.dumps(metadata, sort_keys=True)
+            if unique_key not in seen:
+                seen.add(unique_key)
+                results.append({
+                    "distance": float(distances[0][i]),
+                    "match": metadata
+                })
+        if len(results) >= k:
+            break
 
-# Run with: uvicorn main:app --reload
+    return {"results": results}
