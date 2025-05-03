@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+faiss-cpu
+python-dotenv
+google-generativeai
+pytest
+httpx
+pytest-asyncio

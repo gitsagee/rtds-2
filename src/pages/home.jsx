@@ -83,18 +83,14 @@ export default function GPURecommender() {
     }
   };
 
-  const handleRequestPricing = (gpuId) => {
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 5000);
-  };
 
   return (
     <div className="container">
       {/* New Header */}
       <header className="site-header">
         <div className="logo">
-          <img src="/api/placeholder/40/40" alt="Logo" />
-          <h1>GPU Optimizer</h1>
+          <img src="/logo.png" alt="Logo" height={'50px'} width={'50px'} />
+          <h1>GPU DECK</h1>
         </div>
         <nav className="nav-links">
           <a href="#" className="nav-link">Home</a>
@@ -106,7 +102,7 @@ export default function GPURecommender() {
 
       <div className="wrapper">
         <div className="header">
-          <h1 className="title">GPU Cost Optimizer & Recommender</h1>
+          <h1 className="title">GPU FINDER</h1>
           <p className="subtitle">Find the perfect GPU for your machine learning workloads using natural language</p>
         </div>
 
@@ -208,16 +204,7 @@ I'm using PyTorch for development.`}
                   </div>
                   
                   <div className="gpu-footer">
-                    {gpu.hourlyPrice === 0 ? (
-                      <button
-                      onClick={() => handleButtonClick('request', gpu.id)}
-                      className="outline-button"
-                        onMouseEnter={() => setHoveredButton(`request-${gpu.id}`)}
-                        onMouseLeave={() => setHoveredButton(null)}
-                      >
-                        Request Pricing
-                      </button>
-                    ) : (
+                
                       <button 
                         className="primary-button"
                         onMouseEnter={() => setHoveredButton(`reserve-${gpu.id}`)}
@@ -226,7 +213,7 @@ I'm using PyTorch for development.`}
                       >
                         Reserve Instance
                       </button>
-                    )}
+               
                   </div>
                 </div>
               ))}
